@@ -15,7 +15,7 @@
     <script type="text/javascript">
 
         const freemasterUrl = 'localhost:8090';
-        const myConnectionString = 'RS232;port=COM7;speed=115200';
+        const connectionString = 'RS232;port=COM7;speed=115200';
 
         var pcm;  // the main FreeMASTER communication object
 
@@ -28,9 +28,9 @@
             $("#alert").hide();
             $('#pcmToast').toast('show');
 
-            pcm.StartComm(myConnectionString)
+            pcm.StartComm(connectionString)
                 .then(on_communication_started)
-                .catch(() => showAlert('Could not start the communication'));
+                .catch(() => showAlert('Could not start communication. Please check the connectionString variable is correct and the board is connected.'));
         }
 
         function on_communication_started() {
@@ -167,11 +167,11 @@
              <ul>
                  <li>You board is running firmware that includes the FreeMASTER driver. This example will work with the fmstr_uart_example.</li>
                  <li>You have FreeMASTER Lite running. This example assumes the default <i>localhost:8090</i> unless changed.</li>
-                 <li>You have set the variable <i>myConnectionString</i> appropriately.</li>
+                 <li>You have set the variable <i>connectionString</i> appropriately.</li>
              </ul>
          </p>
 
-         <div id="alert" class="alert alert-danger" role="alert">Could not connect to PCM</div>
+         <div id="alert" class="alert alert-danger" role="alert">Could not connect to PCM. Please check FreeMASTER Lite is running.</div>
 
          <br /><br />
          <h4>This demo uses the standard variables defined in fmstr_uart_example</h4>
