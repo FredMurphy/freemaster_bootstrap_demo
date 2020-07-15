@@ -42,22 +42,28 @@
 
         function on_board_detected() {
             $('#boardToast').toast('show');
+            // Now we're all set to read and write variables
             defineVariables();
-            //readValues();
             setInterval(readValues, 500);
         }
 
         function defineVariables() {
-            // Create variable to map to var16
-            var variableDefinition = { name: "var16", addr: "var16", type: "uint", size: 2 }
-            pcm.DefineVariable(variableDefinition)
-                .then(() => console.log("var16 successfully defined."))
-                .catch((error) => showAlert(error.message));
 
-            // Create variable to map to var16inc
-            variableDefinition = { name: "var16inc", addr: "var16inc", type: "uint", size: 2 }
-            pcm.DefineVariable(variableDefinition)
-                .then(() => console.log("var16inc successfully defined."))
+            // ReadTSA is needed so we can specify an addr using the variable name in DefineVariable
+            pcm.ReadTSA()
+                .then(() => {
+                    // Create a variable to map to var16
+                    var variableDefinition = { name: "var16", addr: "var16", type: "uint", size: 2 }
+                    pcm.DefineVariable(variableDefinition)
+                        .then(() => console.log("var16 successfully defined."))
+                        .catch((error) => showAlert(error.message));
+
+                    // Create a variable to map to var16inc
+                    variableDefinition = { name: "var16inc", addr: "var16inc", type: "uint", size: 2 }
+                    pcm.DefineVariable(variableDefinition)
+                        .then(() => console.log("var16inc successfully defined."))
+                        .catch((error) => showAlert(error.message));
+                })
                 .catch((error) => showAlert(error.message));
         }
 
@@ -68,8 +74,9 @@
         }
 
         function readValues() {
+            // value of var16 is reasd from teh microcontroller and shown in the progress bar
             pcm.ReadVariable("var16")
-            .then((response) => setVar16ProgressBar(response.data));
+                .then((response) => setVar16ProgressBar(response.data));
         }
 
         function setVar16ProgressBar(var16) {
@@ -79,6 +86,7 @@
         }
 
         function setvar16inc(v) {
+            // write the value of var16inc to the microcontroller
             pcm.WriteVariable("var16inc", v)
                 .then(() => console.log("Value successfully written."))
                 .catch((error) => showAlert(error.message));
