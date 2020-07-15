@@ -52,18 +52,19 @@
             // ReadTSA is needed so we can specify an addr using the variable name in DefineVariable
             pcm.ReadTSA()
                 .then(() => {
-                    // Create a variable to map to var16
-                    var variableDefinition = { name: "var16", addr: "var16", type: "uint", size: 2 }
-                    pcm.DefineVariable(variableDefinition)
-                        .then(() => console.log("var16 successfully defined."))
-                        .catch((error) => showAlert(error.message));
-
-                    // Create a variable to map to var16inc
-                    variableDefinition = { name: "var16inc", addr: "var16inc", type: "uint", size: 2 }
-                    pcm.DefineVariable(variableDefinition)
-                        .then(() => console.log("var16inc successfully defined."))
-                        .catch((error) => showAlert(error.message));
+                    // Create mapped variables
+                    mapVariable("var16", "uint", 2);
+                    mapVariable("var16inc", "uint", 2);
+                    mapVariable("var32", "uint", 4);
+                    mapVariable("var32inc", "uint", 4);
                 })
+                .catch((error) => showAlert(error.message));
+        }
+
+        function mapVariable(name, type, size) {
+            var variableDefinition = { name, addr: name, type, size };
+            pcm.DefineVariable(variableDefinition)
+                .then(() => console.log("variable " + name + " successfully defined."))
                 .catch((error) => showAlert(error.message));
         }
 
@@ -74,9 +75,11 @@
         }
 
         function readValues() {
-            // value of var16 is reasd from teh microcontroller and shown in the progress bar
+            // values of var16 and var32 are read from the microcontroller and shown in the progress bar
             pcm.ReadVariable("var16")
                 .then((response) => setVar16ProgressBar(response.data));
+                pcm.ReadVariable("var32")
+                .then((response) => setVar32ProgressBar(response.data));
         }
 
         function setVar16ProgressBar(var16) {
@@ -92,6 +95,23 @@
                 .catch((error) => showAlert(error.message));
                 ;
         }
+
+       function setVar32ProgressBar(var32) {
+            $("#var32progress").text(var32);
+            var32 = var32 / 65536;
+            var w = Math.floor(var32*100/65535);
+            $("#var32progress").css( {'width' : w + '%'});
+        }
+
+        function setvar32inc(v) {
+            // write the value of var32inc to the microcontroller
+            pcm.WriteVariable("var32inc", v)
+                .then(() => console.log("Value successfully written."))
+                .catch((error) => showAlert(error.message));
+                ;
+        }
+
+
 
 </script>
 
@@ -160,18 +180,29 @@
              <div class="col-2">var16</div>
              <div class="col-10">
                  <div class="progress">
-                     <div id="var16progress" class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="1000" aria-valuemin="0" aria-valuemax="65535"></div>
+                     <div id="var16progress" class="progress-bar bg-success" role="progressbar" style="width: 50%;" aria-valuenow="1000" aria-valuemin="0" aria-valuemax="65535"></div>
                  </div>
              </div>
              <div class="col-2">var16inc</div>
              <div class="col-10">
                 <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                    <button type="button" class="btn btn-secondary" onclick="setvar16inc(0)" >Stop</button>
-                    <button type="button" class="btn btn-secondary" onclick="setvar16inc(1)">Slow</button>
-                    <button type="button" class="btn btn-secondary" onclick="setvar16inc(20)">Fast</button>
+                    <button type="button" class="btn btn-success" onclick="setvar16inc(0)" >Stop</button>
+                    <button type="button" class="btn btn-success" onclick="setvar16inc(1)">Slow</button>
+                    <button type="button" class="btn btn-success" onclick="setvar16inc(20)">Fast</button>
                   </div>
              </div>
-         </div>
+             <div class="col-12"><br/><br/></div>
+             <div class="col-2">var32</div>
+             <div class="col-10">
+                 <div class="progress">
+                     <div id="var32progress" class="progress-bar " role="progressbar" style="width: 50%;" aria-valuenow="1000" aria-valuemin="0" aria-valuemax="4294967295"></div>
+                 </div>
+             </div>
+             <div class="col-2">var32inc</div>
+             <div class="col-10">
+                <input type="range" class="form-control-range" id="var32incrange" min="0" max="65535" onchange="setvar32inc(this.value)" />
+            </div>
+            </div>
      </div>
 
 
