@@ -1,0 +1,132 @@
+﻿<html>
+<head>
+    <!-- Bootstrap 4.5 -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <!-- FreeMASTER Lite 3.0-->
+    <script type="text/javascript" src="./assets/js/simple-jsonrpc-js.js"></script>
+    <script type="text/javascript" src="./assets/js/freemaster-client.js"></script>
+
+    <title>FreeMASTER Lite and Bootstrap 4 demo</title>
+</head>
+<body onload="init()">
+    <script type="text/javascript">
+
+        const freemasterUrl = 'localhost:8090';
+        const myConnectionString = 'RS232;port=COM7;speed=115200';
+
+        var pcm;  // the main FreeMASTER communication object
+
+        // Wrapper initialization
+        function init() {
+            pcm = new PCM(freemasterUrl, on_pcm_connected);
+        }
+
+        function on_pcm_connected() {
+            $("#alert").hide();
+            $('#pcmToast').toast('show');
+            setInterval(readValues, 1000);
+
+            pcm.StartComm(myConnectionString)
+                .then(on_communication_started)
+                .catch(() => showAlert('Could not start the communication'));
+        }
+
+        function on_communication_started() {
+            $('#comunicationToast').toast('show');
+            pcm.IsBoardDetected()
+                .then(on_board_detected)
+                .catch(() => showAlert('No board detected'))
+        }
+
+        function on_board_detected() {
+            $('#boardToast').toast('show');
+        }
+
+        function showAlert(msg) {
+            console.error(msg);
+            $("#alert").text(msg);
+            $("#alert").show();
+        }
+
+        function readValues() {
+            if(pcm.ReadVariable("var16"))
+            {
+                alert(pcm.LastVariable_vValue);
+            }
+            else
+            {
+                alert("?");
+            }
+        }
+    </script>
+
+<br/><br/>
+    <div class="container">
+
+        <div aria-live="polite" aria-atomic="true" style="position: relative;">
+            <div style="position: absolute; top: 0; right: 0;">
+    
+                <!-- Then put toasts within -->
+                <div id="pcmToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="3000">
+                    <div class="toast-header">
+                        <strong class="mr-auto">FreeMASTER</strong>
+                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="toast-body">
+                        Connected to PCM.
+                    </div>
+                </div>
+    
+                <div id="comunicationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="3000">
+                    <div class="toast-header">
+                        <strong class="mr-auto">FreeMASTER</strong>
+                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="toast-body">
+                        Comunication started.
+                    </div>
+                </div>
+    
+                <div id="boardToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="3000">
+                    <div class="toast-header">
+                        <strong class="mr-auto">FreeMASTER</strong>
+                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="toast-body">
+                        Board detected.
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <h2>FreeMASTER Lite 3.0 and Bootstrap 4.5 demo</h2>
+        <p>This sample demonstrates using standard Bootstrap components to interact with an NXP microcontroller board connected using FreeMASTER Lite.</p>
+        <p>
+            As with any FreeMASTER Lite implementation, to use this example make sure that:
+            <ul>
+                <li>You board is running firmware that includes the FreeMASTER driver. This example will work with the fmstr_uart_example.</li>
+                <li>You have FreeMASTER Lite running. This example assumes the default localhost:8090 unless changed.</li>
+                <li>You have set the myConnectionString variable appropriately.</li>
+            </ul>
+        </p>
+
+        <div id="alert" class="alert alert-danger" role="alert">Could not connect to PCM</div>
+    </div>
+
+
+    <!-- Bootstrap JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+</body>
+</html>
