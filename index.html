@@ -44,14 +44,20 @@
             $('#boardToast').toast('show');
             defineVariables();
             //readValues();
-            setInterval(readValues, 1000);
+            setInterval(readValues, 500);
         }
 
         function defineVariables() {
             // Create variable to map to var16
-            let variableDefinition = { name: "var16", addr: "var16", type: "uint", size: 2 }
+            var variableDefinition = { name: "var16", addr: "var16", type: "uint", size: 2 }
             pcm.DefineVariable(variableDefinition)
                 .then(() => console.log("var16 successfully defined."))
+                .catch((error) => showAlert(error.message));
+
+            // Create variable to map to var16inc
+            variableDefinition = { name: "var16inc", addr: "var16inc", type: "uint", size: 2 }
+            pcm.DefineVariable(variableDefinition)
+                .then(() => console.log("var16inc successfully defined."))
                 .catch((error) => showAlert(error.message));
         }
 
@@ -59,32 +65,6 @@
             console.error(msg);
             $("#alert").text(msg);
             $("#alert").show();
-        }
-
-        async function listSymbols() {
-            let index = 0;
-            do {
-                try {
-                    let response = await pcm.EnumSymbols(index);
-                    console.log(response.data);
-                    index = index + 1;
-                } catch (err) {
-                    break;
-                }
-            } while (true);
-        }
-
-        async function listVariables() {
-            let index = 0;
-            do {
-                try {
-                    let response = await pcm.EnumVariables(index);
-                    console.log(response.data);
-                    index = index + 1;
-                } catch (err) {
-                    break;
-                }
-            } while (true);
         }
 
         function readValues() {
@@ -97,7 +77,15 @@
             var w = Math.floor(var16*100/65535);
             $("#var16progress").css( {'width' : w + '%'});
         }
-    </script>
+
+        function setvar16inc(v) {
+            pcm.WriteVariable("var16inc", v)
+                .then(() => console.log("Value successfully written."))
+                .catch((error) => showAlert(error.message));
+                ;
+        }
+
+</script>
 
 <br/><br/>
      <div class="container">
@@ -150,8 +138,8 @@
              As with any FreeMASTER Lite implementation, to use this example make sure that:
              <ul>
                  <li>You board is running firmware that includes the FreeMASTER driver. This example will work with the fmstr_uart_example.</li>
-                 <li>You have FreeMASTER Lite running. This example assumes the default localhost:8090 unless changed.</li>
-                 <li>You have set the myConnectionString variable appropriately.</li>
+                 <li>You have FreeMASTER Lite running. This example assumes the default <i>localhost:8090</i> unless changed.</li>
+                 <li>You have set the variable <i>myConnectionString</i> appropriately.</li>
              </ul>
          </p>
 
@@ -166,6 +154,14 @@
                  <div class="progress">
                      <div id="var16progress" class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="1000" aria-valuemin="0" aria-valuemax="65535"></div>
                  </div>
+             </div>
+             <div class="col-2">var16inc</div>
+             <div class="col-10">
+                <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
+                    <button type="button" class="btn btn-secondary" onclick="setvar16inc(0)" >Stop</button>
+                    <button type="button" class="btn btn-secondary" onclick="setvar16inc(1)">Slow</button>
+                    <button type="button" class="btn btn-secondary" onclick="setvar16inc(20)">Fast</button>
+                  </div>
              </div>
          </div>
      </div>
